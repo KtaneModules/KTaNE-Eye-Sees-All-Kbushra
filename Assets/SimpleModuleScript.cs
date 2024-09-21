@@ -43,8 +43,18 @@ public class SimpleModuleScript : MonoBehaviour
     public Material[] colors;
     public Material black;
 
-    private int framerate = 4;
+    private int framerate = 12; //Normally 4
     private bool focused = false;
+
+    private int[] newCode = new int[4];
+    private string movementCalc = "";
+    private int[] angcolProduct = new int[4];
+    private int clickCount = 0;
+    private int clickPos = 0;
+    private float lastCall = 0;
+    private bool checkTime = false;
+
+    private bool solved = false;
 
     void Awake()
     {
@@ -64,13 +74,24 @@ public class SimpleModuleScript : MonoBehaviour
         Shuffle(vibration);
         Shuffle(cornerMoves);
 
+        while (vibration[0] != 0)
+        {
+            int temp = vibration[1];
+            vibration[1] = vibration[0];
+            int temp2 = vibration[2];
+            vibration[2] = temp;
+            temp = vibration[3];
+            vibration[3] = temp2;
+            vibration[0] = temp;
+        }
+
         string printer = "";
-        foreach(int i in vibration) { printer += i; }
-        Debug.LogFormat("[Eye Sees All #{0}] Vibration directions are {1}", ModuleId, printer);
+        foreach(int i in vibration) { printer += i+1; }
+        Debug.LogFormat("[Eye Sees All #{0}] Vibration directions (0NW, 1NE, 2SW, 3SE) are {1}", ModuleId, printer);
 
         printer = "";
-        foreach (int i in cornerMoves) { printer += i; }
-        Debug.LogFormat("[Eye Sees All #{0}] Corner directions are {1}", ModuleId, printer);
+        foreach (int i in cornerMoves) { printer += i+1; }
+        Debug.LogFormat("[Eye Sees All #{0}] Corner directions (0NW, 1NE, 2SW, 3SE) are {1}", ModuleId, printer);
 
         for (int i = 0; i < 4; i++)
         {
@@ -90,17 +111,69 @@ public class SimpleModuleScript : MonoBehaviour
         }
 
         printer = "";
-        foreach (int i in angles) { printer += i; }
-        Debug.LogFormat("[Eye Sees All #{0}] Angles are {1}", ModuleId, printer);
+        foreach (int i in angles) { printer += i+1; }
+        Debug.LogFormat("[Eye Sees All #{0}] Angles (3 values 4 times) are {1}", ModuleId, printer);
 
         printer = "";
-        foreach (int i in colorNums) { printer += i; }
-        Debug.LogFormat("[Eye Sees All #{0}] Color numbers are {1}", ModuleId, printer);
+        foreach (int i in colorNums) { printer += i+1; }
+        Debug.LogFormat("[Eye Sees All #{0}] Color numbers (3 values 4 times) are {1}", ModuleId, printer);
+
+        Calculate();
+    }
+
+    void Calculate()
+    {
+        for(int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            { if (vibration[i] == cornerMoves[j]) { movementCalc += (j+1).ToString(); break; } }
+        }
+
+        Debug.LogFormat("[Eye Sees All #{0}] Digits for movement are {1}", ModuleId, movementCalc);
+        for (int i = 0; i < 4; i++)
+        {
+            int angleSums = 0;
+            int colorSums = 0;
+            for (int j = 0; j < 3; j++)
+            {
+                angleSums += angles[i, j]+1;
+                colorSums += colorNums[i, j]+1;
+            }
+            angcolProduct[i] += angleSums * colorSums;
+
+            char movementChar = movementCalc.ToCharArray()[i];
+            newCode[i] = angcolProduct[i] + int.Parse(movementChar.ToString());
+            newCode[i] %= 10;
+        }
+
+        string printer = "";
+        foreach (int i in newCode) { printer += i; }
+        Debug.LogFormat("[Eye Sees All #{0}] Final digits are {1}", ModuleId, printer);
+
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (solved) { return; }
+
+        if (checkTime)
+        {
+            lastCall += Time.deltaTime;
+            if (lastCall > 1)
+            {
+                if (clickCount == newCode[clickPos])
+                {
+                    clickPos++;
+                    if (clickPos > 3) { module.HandlePass(); solved = true; eyeToggle(false); }
+                }
+                else { module.HandleStrike(); }
+
+                clickCount = 0;
+                lastCall = 0;
+                checkTime = false;
+            }
+        }
         if (!focused) return;
 
         //Corner movement
@@ -143,7 +216,7 @@ public class SimpleModuleScript : MonoBehaviour
                 iris[i].transform.localEulerAngles = angle;
             }
             cyclePos++;
-            if (cyclePos == 10) { stage++; }
+            if (cyclePos == 8) { stage++; }
         }
         else if (Time.frameCount % (framerate * 2) == 0 && stage == 2) //Still line
         {
@@ -187,6 +260,8 @@ public class SimpleModuleScript : MonoBehaviour
 
     void eyeToggle(bool on)
     {
+        if (solved) { on = false; }
+
         foreach (GameObject ir in iris) { ir.SetActive(on); }
         focused = on;
         if (!on)
@@ -196,6 +271,8 @@ public class SimpleModuleScript : MonoBehaviour
             eyelids[0].transform.localPosition = pos;
             pos.z = 0.0012f;
             eyelids[1].transform.localPosition = pos;
+
+            irisLead.SetActive(false);
         }
         else
         {
@@ -204,6 +281,15 @@ public class SimpleModuleScript : MonoBehaviour
             eyelids[0].transform.localPosition = pos;
             pos.z = -0.015f;
             eyelids[1].transform.localPosition = pos;
+
+            centre = initial;
+            switch (cornerMoves[0])
+            {
+                case 0: centre.x -= 0.007f; centre.z += 0.003f; break;
+                case 1: centre.x += 0.007f; centre.z += 0.003f; break;
+                case 2: centre.x -= 0.007f; centre.z -= 0.003f; break;
+                case 3: centre.x += 0.007f; centre.z -= 0.003f; break;
+            }
 
             stage = 0;
             cyclePos = 0;
@@ -217,14 +303,22 @@ public class SimpleModuleScript : MonoBehaviour
                 angle.y = 0;
                 iris[i].transform.localScale = scale;
                 iris[i].transform.localEulerAngles = angle;
+                iris[i].transform.localPosition = centre;
             }
         }
     }
 
     void Select()
     {
+        if (solved) { return; }
+
         audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
         eyeSelectable.AddInteractionPunch(0.5f);
+
+        checkTime = true;
+        lastCall = 0;
+        clickCount++;
+        clickCount %= 10;
     }
 
     #pragma warning disable 414
