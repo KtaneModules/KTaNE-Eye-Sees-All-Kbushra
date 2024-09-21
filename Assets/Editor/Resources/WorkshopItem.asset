@@ -8,11 +8,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -434690030, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
-  m_Name: TableOfContents
+  m_Script: {fileID: 11500000, guid: 5cf2299c8864afe4ab42466f546ae20d, type: 3}
+  m_Name: WorkshopItem
   m_EditorClassIdentifier: 
-  Title: That one kid - Eye sees all
-  Sections:
-  - Title: Eyes
-    MissionIDs:
-    - mission
+  WorkshopPublishedFileID: 0
+  Title: Eye Sees All
+  Tags: []

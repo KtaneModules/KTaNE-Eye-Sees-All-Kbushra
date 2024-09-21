@@ -43,7 +43,7 @@ public class SimpleModuleScript : MonoBehaviour
     public Material[] colors;
     public Material black;
 
-    private int framerate = 12; //Normally 4
+    private int framerate = 4; //Normally 4
     private bool focused = false;
 
     private int[] newCode = new int[4];

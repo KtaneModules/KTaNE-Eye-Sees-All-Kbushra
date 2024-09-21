@@ -14,7 +14,7 @@ MonoBehaviour:
   DisplayName: The eye forsees
   Description: '...an explosion'
   GeneratorSetting:
-    TimeLimit: 300
+    TimeLimit: 600
     NumStrikes: 2
     TimeBeforeNeedyActivation: 90
     FrontFaceOnly: 0

@@ -18,4 +18,4 @@ MonoBehaviour:
     to select it
   version: 1.0
   outputFolder: build
-  previewImage: {fileID: 0}
+  previewImage: {fileID: 2800000, guid: ecc5ebce0bfd33942ba0f18704834ed9, type: 3}
