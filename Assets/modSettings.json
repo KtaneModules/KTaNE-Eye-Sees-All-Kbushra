@@ -1,0 +1,4 @@
+{ 	 	
+	"_framerate": 4,
+	"note": "Default: 4 frames. Vibrations last frames, corner movement lasts frames*4, angles and colour lines last frames*2. Despite the name, higher framerate = slower speed. Frames are not allowed to be higher than 15 or lower than 1."
+}

@@ -236,6 +236,7 @@ GameObject:
   - component: {fileID: 114488448501801328}
   - component: {fileID: 114873890000397574}
   - component: {fileID: 114431821201297796}
+  - component: {fileID: 114891946498689368}
   m_Layer: 0
   m_Name: Eye Sees All
   m_TagString: Untagged
@@ -972,6 +973,7 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 4b23924e4377c344ca3fa63c0c1041bc, type: 2}
   - {fileID: 2100000, guid: 0d16ab088123bcb43a1809a739c2d4bc, type: 2}
   black: {fileID: 2100000, guid: 91776539fb6da464ba55af4239dfb423, type: 2}
+  modSettings: {fileID: 114891946498689368}
 --- !u!114 &114488448501801328
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1055,6 +1057,22 @@ MonoBehaviour:
   ModuleType: eyeSeesAll
   ModuleDisplayName: Eye Sees All
   RequiresTimerVisibility: 0
+--- !u!114 &114891946498689368
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1960401788995420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -289456416, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Settings: '{"_framerate": 4, "note": "Default: 4 frames. Vibrations last frames,
+    corner movement lasts frames*4, angles and colour lines last frames*2. Despite
+    the name, higher framerate = slower speed. Frames are not allowed to be higher
+    than 15 or lower than 1." }'
+  SettingsPath: 
 --- !u!114 &114973703897535128
 MonoBehaviour:
   m_ObjectHideFlags: 1

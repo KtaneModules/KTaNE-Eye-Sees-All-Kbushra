@@ -29,7 +29,6 @@ public class SimpleModuleScript : MonoBehaviour
     //Calculation vars
     private int cyclePos = 0;
     private int vibrPos = 0;
-    private int cycleCount = 0;
     private int stage = 0;
     private Vector3 initial = new Vector3(0, 0, 0);
     private Vector3 centre = new Vector3(0,0,0);
@@ -55,6 +54,9 @@ public class SimpleModuleScript : MonoBehaviour
     private bool checkTime = false;
 
     private bool solved = false;
+
+    public class ModSettingsJSON { public int _framerate; }
+    public KMModSettings modSettings;
 
     void Awake()
     {
@@ -119,6 +121,21 @@ public class SimpleModuleScript : MonoBehaviour
         Debug.LogFormat("[Eye Sees All #{0}] Color numbers (3 values 4 times) are {1}", ModuleId, printer);
 
         Calculate();
+        framerate = ManageOptions();
+    }
+
+    int ManageOptions()
+    {
+        ModSettingsJSON settings = JsonConvert.DeserializeObject<ModSettingsJSON>(modSettings.Settings);
+        if (settings != null)
+        {
+            if (settings._framerate < 1) { Debug.LogFormat("[Forget Me Maybe #{0}] Framerate set to lower than 1. Using default settings.", ModuleId); return 4; }
+            if (settings._framerate > 15) { Debug.LogFormat("[Forget Me Maybe #{0}] Framerate set to higher than 15. Using default settings.", ModuleId); return 4; }
+            Debug.LogFormat("[Forget Me Maybe #{0}] Using given settings of framerate {1}.", ModuleId, settings._framerate);
+            return settings._framerate;
+        }
+        Debug.LogFormat("[Forget Me Maybe #{0}] Settings not found. Using default settings.", ModuleId);
+        return 4;
     }
 
     void Calculate()
@@ -322,11 +339,21 @@ public class SimpleModuleScript : MonoBehaviour
     }
 
     #pragma warning disable 414
-    private string TwitchHelpMessage = "!{0} eye [selects the eye]";
+    private string TwitchHelpMessage = "!{0} eye n [selects the eye n times]";
     #pragma warning restore 414
     IEnumerator ProcessTwitchCommand(string command)
     {
-        if (command.ToLower() == "eye") { eyeSelectable.OnInteract(); yield return null; }
-        else { yield return "sendtochaterror Not the 'eye' parameter!"; }
+        string[] parameters = command.Split(' ');
+        if (parameters[0].ToLower() != "eye") { yield return "sendtochaterror First parameter not 'eye'!"; }
+        else if (parameters.Length == 1) { yield return "sendtochaterror Too few parameters!"; }
+        else if (parameters.Length > 2) { yield return "sendtochaterror Too many parameters!"; }
+        else if (parameters[1].TryParseInt() == null) { yield return "sendtochaterror Second parameter not an integer!"; }
+        else if (parameters[1].TryParseInt() <= 0) { yield return "sendtochaterror Second parameter less than or equal to 0!"; }
+        else if (parameters[1].TryParseInt() >= 1000) { yield return "sendtochaterror Are you trying to crash the game? Second parameter too large!"; }
+        else
+        {
+            for (int i = 0; i < parameters[1].TryParseInt(); i++) { eyeSelectable.OnInteract(); }
+            yield return null;
+        }
     }
 }
