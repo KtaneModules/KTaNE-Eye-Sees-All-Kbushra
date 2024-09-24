@@ -129,12 +129,12 @@ public class SimpleModuleScript : MonoBehaviour
         ModSettingsJSON settings = JsonConvert.DeserializeObject<ModSettingsJSON>(modSettings.Settings);
         if (settings != null)
         {
-            if (settings._framerate < 1) { Debug.LogFormat("[Forget Me Maybe #{0}] Framerate set to lower than 1. Using default settings.", ModuleId); return 4; }
-            if (settings._framerate > 15) { Debug.LogFormat("[Forget Me Maybe #{0}] Framerate set to higher than 15. Using default settings.", ModuleId); return 4; }
-            Debug.LogFormat("[Forget Me Maybe #{0}] Using given settings of framerate {1}.", ModuleId, settings._framerate);
+            if (settings._framerate < 1) { Debug.LogFormat("[Eye Sees All #{0}] Framerate set to lower than 1. Using default settings.", ModuleId); return 4; }
+            if (settings._framerate > 15) { Debug.LogFormat("[Eye Sees All #{0}] Framerate set to higher than 15. Using default settings.", ModuleId); return 4; }
+            Debug.LogFormat("[Eye Sees All #{0}] Using given settings of framerate {1}.", ModuleId, settings._framerate);
             return settings._framerate;
         }
-        Debug.LogFormat("[Forget Me Maybe #{0}] Settings not found. Using default settings.", ModuleId);
+        Debug.LogFormat("[Eye Sees All #{0}] Settings not found. Using default settings.", ModuleId);
         return 4;
     }
 
@@ -352,8 +352,8 @@ public class SimpleModuleScript : MonoBehaviour
         else if (parameters[1].TryParseInt() >= 1000) { yield return "sendtochaterror Are you trying to crash the game? Second parameter too large!"; }
         else
         {
-            for (int i = 0; i < parameters[1].TryParseInt(); i++) { eyeSelectable.OnInteract(); }
             yield return null;
+            for (int i = 0; i < parameters[1].TryParseInt(); i++) { eyeSelectable.OnInteract(); }
         }
     }
 }
